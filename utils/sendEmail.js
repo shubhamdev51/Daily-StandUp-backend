@@ -1,68 +1,39 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (email, otp) => {
   try {
-    const transporter = nodemailer.createTransport({
-      // service: "gmail",
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      family: 4,   // FORCE IPv4
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      logger: true,
-      debug: true
-    });
-    console.log(process.env.EMAIL_USER);
-    console.log(process.env.EMAIL_PASS ? "Password loaded" : "Password missing");
-
-    // await transporter.verify();
-    console.log("SMTP server ready");
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    const response = await resend.emails.send({
+      from: "OTP Verification <onboarding@resend.dev>",
       to: email,
       subject: "Your OTP for Authentication",
-      html: `<div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 30px;">
-         <div style="max-width: 500px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-         <h2 style="text-align: center; color: #333333;">Email Verification</h2>
-         <p style="font-size: 15px; color: #555555; line-height: 1.6;">
-          Thank you for using our service. You can use the following One-Time Password (OTP) to complete your authentication process.
-        </p>
-      <div style="text-align: center; margin: 30px 0;">
-        <span style="
-          display: inline-block;
-          padding: 15px 25px;
-          font-size: 24px;
-          letter-spacing: 5px;
-          font-weight: bold;
-          background-color: #e8f0fe;
-          color: #1a73e8;
-          border-radius: 6px;">
-          ${otp}
-        </span>
-      </div>
-      <p style="font-size: 14px; color: #777777; text-align: center;">
-        This OTP will expire in <strong>5 minutes</strong>.
-      </p>
-      <hr style="margin: 25px 0; border: none; border-top: 1px solid #eeeeee;" />
-      <p style="font-size: 12px; color: #999999; text-align: center;">
-        If you did not request this OTP, please ignore this email.
-      </p>
-    </div>
-  </div>`
-    };
+      html: `
+      <div style="font-family: Arial, sans-serif; background-color:#f4f6f8;padding:30px">
+        <div style="max-width:500px;margin:auto;background:#fff;padding:30px;border-radius:8px">
+          <h2 style="text-align:center">Email Verification</h2>
+          <p>Your One Time Password is:</p>
 
-    await transporter.sendMail(mailOptions);
-    console.log("Email sent:");
+          <div style="text-align:center;margin:30px 0">
+            <span style="font-size:28px;font-weight:bold;letter-spacing:6px">
+              ${otp}
+            </span>
+          </div>
+
+          <p style="text-align:center;color:gray">
+            This OTP will expire in 5 minutes.
+          </p>
+        </div>
+      </div>
+      `
+    });
+
+    console.log("Email sent:", response);
 
   } catch (error) {
     console.error("Email sending failed:", error);
     throw error;
   }
-
 };
 
 module.exports = sendEmail;
