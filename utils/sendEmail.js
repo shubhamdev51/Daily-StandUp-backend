@@ -1,19 +1,22 @@
 const nodemailer = require("nodemailer");
 
 const sendEmail = async (email, otp) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+    console.log(process.env.EMAIL_USER);
+    console.log(process.env.EMAIL_PASS ? "Password loaded" : "Password missing");
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Your OTP for Authentication",
-    html: `<div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 30px;">
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Your OTP for Authentication",
+      html: `<div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 30px;">
          <div style="max-width: 500px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
          <h2 style="text-align: center; color: #333333;">Email Verification</h2>
          <p style="font-size: 15px; color: #555555; line-height: 1.6;">
@@ -41,9 +44,16 @@ const sendEmail = async (email, otp) => {
       </p>
     </div>
   </div>`
-  };
+    };
 
-  await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent:", info.response);
+
+  } catch (error) {
+    console.error("Email sending failed:", error);
+    throw error;
+  }
+
 };
 
 module.exports = sendEmail;

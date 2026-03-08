@@ -21,6 +21,7 @@ exports.sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log("Generated OTP:", otp);
     otpStore.set(email, { 
       otp,
       expiresAt: Date.now() + 5 * 60 * 1000
@@ -28,7 +29,7 @@ exports.sendOtp = async (req, res) => {
     await sendEmail(email, otp);
     res.status(200).json({ message: "OTP sent successfully" });
   } catch (error) {
-    console.error("Error in /api/sendotp:", err);
+    console.error("Error in /api/sendotp:", error);
     res.status(500).json({ message: "Failed to send OTP" });
   }
 };
