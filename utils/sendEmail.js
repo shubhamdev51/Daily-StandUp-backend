@@ -46,7 +46,7 @@ const sendEmail = async (email, otp) => {
   </div>`
     };
 
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
     console.log("Email sent:", info.response);
 
   } catch (error) {
