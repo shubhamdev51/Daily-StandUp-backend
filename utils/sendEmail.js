@@ -14,7 +14,7 @@ const sendEmail = async (email, otp) => {
   try {
 
     const mailOptions = {
-      from: "OTP Verification <yourbrevoemail@gmail.com>",
+      from: "yourbrevoemail@gmail.com",
       to: email,
       subject: "Your OTP for Authentication",
       html: `<div style="font-family: Arial, sans-serif; background-color:#f4f6f8;padding:30px">
