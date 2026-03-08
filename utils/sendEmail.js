@@ -10,7 +10,8 @@ const sendEmail = async (email, otp) => {
         otp: otp
       },
       {
-        publicKey: process.env.EMAILJS_PUBLIC_KEY
+        publicKey: process.env.EMAILJS_PUBLIC_KEY,
+        privateKey: process.env.EMAILJS_PRIVATE_KEY
       }
     );
     console.log("Email sent:", response);
