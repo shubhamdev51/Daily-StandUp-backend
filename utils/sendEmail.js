@@ -7,6 +7,7 @@ const sendEmail = async (email, otp) => {
       host: "smtp.gmail.com",
       port: 587,
       secure: false,
+      family: 4,   // FORCE IPv4
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -17,7 +18,7 @@ const sendEmail = async (email, otp) => {
     console.log(process.env.EMAIL_USER);
     console.log(process.env.EMAIL_PASS ? "Password loaded" : "Password missing");
 
-    await transporter.verify();
+    // await transporter.verify();
     console.log("SMTP server ready");
 
     const mailOptions = {
@@ -54,8 +55,8 @@ const sendEmail = async (email, otp) => {
   </div>`
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info.response);
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent:");
 
   } catch (error) {
     console.error("Email sending failed:", error);
