@@ -9,7 +9,11 @@ const app = express();
 
 connectDB();
 
-app.use(cors());
+app.use(cors({
+  origin: "https://daily-standup-sepia.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
