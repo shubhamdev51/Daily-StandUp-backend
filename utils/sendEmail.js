@@ -1,15 +1,23 @@
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_EMAIL,
+    pass: process.env.BREVO_SMTP_KEY
+  }
+});
 
 const sendEmail = async (email, otp) => {
   try {
-    const response = await resend.emails.send({
-      from: "OTP Verification <onboarding@resend.dev>",
+
+    const mailOptions = {
+      from: "OTP Verification <yourbrevoemail@gmail.com>",
       to: email,
       subject: "Your OTP for Authentication",
-      html: `
-      <div style="font-family: Arial, sans-serif; background-color:#f4f6f8;padding:30px">
+      html: `<div style="font-family: Arial, sans-serif; background-color:#f4f6f8;padding:30px">
         <div style="max-width:500px;margin:auto;background:#fff;padding:30px;border-radius:8px">
           <h2 style="text-align:center">Email Verification</h2>
           <p>Your One Time Password is:</p>
@@ -24,11 +32,12 @@ const sendEmail = async (email, otp) => {
             This OTP will expire in 5 minutes.
           </p>
         </div>
-      </div>
-      `
-    });
+      </div>`
+    };
 
-    console.log("Email sent:", response);
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("Email sent:", info.messageId);
 
   } catch (error) {
     console.error("Email sending failed:", error);
