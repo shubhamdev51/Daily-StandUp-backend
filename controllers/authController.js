@@ -16,6 +16,8 @@ const generateToken = (user) => {
 };
 
 exports.sendOtp = async (req, res) => {
+  console.log("POST /api/send-otp called");
+  console.log("Request body:", req.body);
   try {
     const { email } = req.body;
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -26,6 +28,7 @@ exports.sendOtp = async (req, res) => {
     await sendEmail(email, otp);
     res.status(200).json({ message: "OTP sent successfully" });
   } catch (error) {
+    console.error("Error in /api/sendotp:", err);
     res.status(500).json({ message: "Failed to send OTP" });
   }
 };
