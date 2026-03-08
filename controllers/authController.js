@@ -48,9 +48,7 @@ exports.signup = async (req, res) => {
     await newUser.save();
     otpStore.delete(email);
     const token = generateToken(newUser);
-    res.status(201).json({
-      message: "Signup successful",
-      token,
+    res.status(201).json({ message: "Signup successful", token,
       user: {
         id: newUser._id,
         name: newUser.name,
