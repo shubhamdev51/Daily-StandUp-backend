@@ -7,12 +7,12 @@ exports.protect = (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
     }
     if (!token) {
-      return res.status(401).json({ message: "Not authorized, no token" });
+      return res.status(401).json({ message: "Not authorized, Kindly relogin" });
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(401).json({ message: "Not authorized, invalid token" });
+    res.status(401).json({ message: "Not authorized, Kindly relogin" });
   }
 };

@@ -39,7 +39,7 @@ exports.signup = async (req, res) => {
     const { name, email, otp } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "User already registered,kindly login" });
+      return res.status(400).json({ message: "User already registered, Kindly login" });
     }
     const storedOtp = otpStore.get(email);
     if (!storedOtp || storedOtp.otp !== otp) {
@@ -69,7 +69,7 @@ exports.login = async (req, res) => {
     const { email, otp } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "User not registered,kindly sign-up" });
+      return res.status(400).json({ message: "User not registered, Kindly sign-up" });
     }
     const storedOtp = otpStore.get(email);
     if (!storedOtp || storedOtp.otp !== otp) {
