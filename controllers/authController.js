@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const Standup = require("../models/standup");
 const sendEmail = require("../utils/sendEmail");
 const jwt = require("jsonwebtoken");
 
@@ -34,35 +35,35 @@ exports.sendOtp = async (req, res) => {
   }
 };
 
-exports.signup = async (req, res) => {
-  try {
-    const { name, email, otp } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already registered, Kindly login" });
-    }
-    const storedOtp = otpStore.get(email);
-    if (!storedOtp || storedOtp.otp !== otp) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
-    if (storedOtp.expiresAt < Date.now()) {
-      return res.status(400).json({ message: "OTP expired" });
-    }
-    const newUser = new User({ name, email });
-    await newUser.save();
-    otpStore.delete(email);
-    const token = generateToken(newUser);
-    res.status(201).json({ message: "Signup successful", token,
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Signup failed" });
-  }
-};
+// exports.signup = async (req, res) => {
+//   try {
+//     const { name, email, otp } = req.body;
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).json({ message: "User already registered, Kindly login" });
+//     }
+//     const storedOtp = otpStore.get(email);
+//     if (!storedOtp || storedOtp.otp !== otp) {
+//       return res.status(400).json({ message: "Invalid OTP" });
+//     }
+//     if (storedOtp.expiresAt < Date.now()) {
+//       return res.status(400).json({ message: "OTP expired" });
+//     }
+//     const newUser = new User({ name, email });
+//     await newUser.save();
+//     otpStore.delete(email);
+//     const token = generateToken(newUser);
+//     res.status(201).json({ message: "Signup successful", token,
+//       user: {
+//         id: newUser._id,
+//         name: newUser.name,
+//         email: newUser.email
+//       }
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: "Signup failed" });
+//   }
+// };
 
 exports.login = async (req, res) => {
   try {
@@ -80,14 +81,60 @@ exports.login = async (req, res) => {
     }
     otpStore.delete(email);
     const token = generateToken(user);
-    res.status(200).json({ message: "Login successful", token,
+    const todayDate = new Date().toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'});
+    const todayStandup = await Standup.findOne({
+      user: user._id,
+      date: todayDate
+    });
+    const recentStandups = await Standup.find({ user: user._id })
+      .sort({ date: -1 })
+      .limit(20);
+    //normalize project names (avoid duplicates like "Project A" vs "project a")
+    const normalize = (p) => p?.trim().toLowerCase();
+    const morningProjects = [
+      ...new Map(
+        recentStandups
+          .flatMap(s => {
+            if (Array.isArray(s.morning?.project)) return s.morning.project;
+            return s.morning?.project ? [s.morning.project] : [];
+          })
+          .filter(Boolean)
+          .map(p => [normalize(p), p]) // unique by normalized key
+      ).values()
+    ].slice(0, 5);
+    const eveningProjects = [
+      ...new Map(
+        recentStandups
+          .flatMap(s => {
+            if (Array.isArray(s.evening?.project)) return s.evening.project;
+            return s.evening?.project ? [s.evening.project] : [];
+          })
+          .filter(Boolean)
+          .map(p => [normalize(p), p])
+      ).values()
+    ].slice(0, 5);
+    res.status(200).json({
+      message: "Login successful",
+      token,
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
+      },
+      standup: {
+        morningSubmitted: !!todayStandup?.morning?.submittedAt,
+        eveningSubmitted: !!todayStandup?.evening?.submittedAt,
+
+        projects: {
+          morning: morningProjects,
+          evening: eveningProjects
+        }
       }
     });
+
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Login failed" });
   }
 };

@@ -13,12 +13,18 @@ const standupSchema = new mongoose.Schema(
       required: true,
     },
 
+    time: {
+      type: String,
+      required: true
+    },
+
     morning: {
       project: String,
       yesterdayUpdate: String,
       todayDeliverables: String,
       blocker: String,
       blockerDescription: String,
+      comments: String,
       submittedAt: Date,
     },
 
@@ -28,6 +34,7 @@ const standupSchema = new mongoose.Schema(
       todaysUpdate: String,
       completionTimeline: String,
       blockerDescription: String,
+      comments: String,
       submittedAt: Date,
     },
   },

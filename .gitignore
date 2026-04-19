@@ -1,4 +1,4 @@
 node_modules/
 .env
-utils/testEmail.js
+utils/eendEmail.js
 
